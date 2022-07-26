@@ -1,0 +1,20 @@
+<svg width="348" height="348" xmlns="http://www.w3.org/2000/svg" fill="none">
+
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_1" stroke="#000" stroke-width="2" d="m4.33826,5.86018l336.913,0l0,337.67l-336.912,0l-0.001,-337.67z"/>
+  <path id="svg_2" stroke="#000" stroke-width="2" d="m282.734,40.554c0,-8.376 6.966,-15.165 15.56,-15.165c4.126,0 8.084,1.597 11.001,4.441c2.918,2.844 4.558,6.702 4.558,10.724c0,8.376 -6.966,15.165 -15.56,15.165c-8.593,0 -15.559,-6.79 -15.559,-15.165z"/>
+  <rect id="svg_5" height="120" width="210" y="114" x="25" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_11" cy="78" cx="65" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_12" cy="78" cx="130" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_13" cy="78" cx="195" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_14" cy="269" cx="65" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_15" cy="269" cx="130" stroke-width="2" stroke="#000"/>
+  <ellipse ry="25" rx="25" id="svg_16" cy="269" cx="195" stroke-width="2" stroke="#000"/>
+  <rect id="svg_17" height="180" width="34" y="125" x="282" stroke-width="2" stroke="#000"/>
+  <rect id="svg_18" height="24" width="24" y="143" x="287" stroke-width="2" stroke="#000"/>
+  <rect id="svg_19" height="24" width="24" y="183" x="287" stroke-width="2" stroke="#000"/>
+  <rect id="svg_20" height="24" width="24" y="223" x="287" stroke-width="2" stroke="#000"/>
+  <rect id="svg_21" height="24" width="24" y="263" x="287" stroke-width="2" stroke="#000"/>
+ </g>
+</svg>
