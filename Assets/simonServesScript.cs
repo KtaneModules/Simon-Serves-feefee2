@@ -182,13 +182,13 @@ public class simonServesScript : MonoBehaviour
                 {
                     if (names[rightPerson % 6].Contains(letter.ToString().ToLower()))
                     {
-                        Debug.Log("[Simon Serves] Worked");
+                        Debug.Log("<Simon Serves #" + moduleId + "> Worked");
                         goto afterLoop;
                     }
                 }
                 rightPerson++;
             }
-            Debug.Log("[Simon Serves] Here");
+            Debug.Log("<Simon Serves #" + moduleId + "> Here");
             //no match found
 
             rightPerson %= 6;
@@ -198,7 +198,7 @@ public class simonServesScript : MonoBehaviour
                 if (marker[i].enabled)
                 {
                     string markersEnabledLog = String.Join(" ", new List<bool>(new bool[] { marker[0].enabled, marker[1].enabled, marker[2].enabled, marker[3].enabled, marker[4].enabled, marker[5].enabled }).ConvertAll(j => j.ToString()).ToArray());
-                    Debug.Log("[Simon Serves] 0" + markersEnabledLog + "; " + rightPerson + "; " + i);
+                    Debug.Log("[Simon Serves #" + moduleId + "] 0" + markersEnabledLog + "; " + rightPerson + "; " + i);
                     GetComponent<KMBombModule>().HandleStrike();
                     for (int j = 0; j < 6; j++)
                     {
@@ -212,7 +212,7 @@ public class simonServesScript : MonoBehaviour
             GetComponent<KMBombModule>().HandlePass();
             return;
             afterLoop:
-            Debug.Log("[Simon Serves] Here2");
+            Debug.Log("<Simon Serves #" + moduleId + "> Here2");
             //match found
             rightPerson %= 6;
             for(int i = 0; i < 6; i++)
@@ -220,7 +220,7 @@ public class simonServesScript : MonoBehaviour
                 if((!marker[i].enabled && rightPerson == i) || (marker[i].enabled && rightPerson != i))
                 {
                     string markersEnabledLog = String.Join(" ", new List<bool>(new bool[] { marker[0].enabled, marker[1].enabled, marker[2].enabled, marker[3].enabled, marker[4].enabled, marker[5].enabled }).ConvertAll(j => j.ToString()).ToArray());
-                    Debug.Log("[Simon Serves] 1" + markersEnabledLog + "; " + rightPerson + "; " + i);
+                    Debug.Log("[Simon Serves #" + moduleId + "] 1" + markersEnabledLog + "; " + rightPerson + "; " + i);
                     GetComponent<KMBombModule>().HandleStrike();
                     for (int j = 0; j < 6; j++)
                     {
@@ -284,7 +284,7 @@ public class simonServesScript : MonoBehaviour
                 // REMOVE FROM HERE
                 if (!(num == servingOrder[nextIndex]))
                 {
-                    Debug.Log("[Simon Serves] Wrong Person current, right on: " + num + ", " + servingOrder[nextIndex]);
+                    Debug.Log("[Simon Serves #" + moduleId + "] Wrong Person current, right on: " + num + ", " + servingOrder[nextIndex]);
                     LogGameState();
                     HandleStrike();
                     return;
@@ -347,7 +347,7 @@ public class simonServesScript : MonoBehaviour
                 if (foods.Contains(people[lastGuestPress, stage, i]))
                 {
                     //incorrect dish
-                    Debug.Log("[Simon Serves] Wrong Food current, right on: " + numFood + ", " + people[lastGuestPress, stage, i]);
+                    Debug.Log("[Simon Serves #" + moduleId + "] Wrong Food current, right on: " + numFood + ", " + people[lastGuestPress, stage, i]);
                     LogGameState();
                     HandleStrike();
                     return false;
@@ -357,7 +357,7 @@ public class simonServesScript : MonoBehaviour
         else
         {
             //incorrect guest
-            Debug.Log("[Simon Serves] Wrong Person current, right on: " + lastGuestPress + ", " + servingOrder[nextIndex]);
+            Debug.Log("[Simon Serves #" + moduleId + "] Wrong Person current, right on: " + lastGuestPress + ", " + servingOrder[nextIndex]);
             LogGameState();
             HandleStrike();
             return false;
@@ -722,6 +722,6 @@ public class simonServesScript : MonoBehaviour
         string prioListLog = "nope";
         if (lastGuestPress != -1 && stage >= 0 && stage < 4) prioListLog = String.Join(" ", new List<int>(new int[] { people[lastGuestPress, stage, 0], people[lastGuestPress, stage, 1], people[lastGuestPress, stage, 2], people[lastGuestPress, stage, 3], people[lastGuestPress, stage, 4], people[lastGuestPress, stage, 5], people[lastGuestPress, stage, 6], people[lastGuestPress, stage, 7] }).ConvertAll(i => i.ToString()).ToArray());
 
-        Debug.Log("[Simon Serves] " + blinkingOrderLog + "; " + servingOrderLog + "; " + stage + "; " + foodsLog + "; " + originalFoodsLog + "; " + nextIndex + "; " + prioListLog);
+        Debug.Log("[Simon Serves #" + moduleId + "] " + blinkingOrderLog + "; " + servingOrderLog + "; " + stage + "; " + foodsLog + "; " + originalFoodsLog + "; " + nextIndex + "; " + prioListLog);
     }
 }
