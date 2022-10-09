@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Linq;
 using UnityEngine;
 using KModkit;
@@ -112,13 +113,13 @@ public class simonServesScript : MonoBehaviour
         for (int i = 0; i < buttons.Length; i++)
         {
             int j = i;
-            buttons[i].OnInteract += delegate () { PressButton(j); return false; };
+            buttons[i].OnInteract += delegate () { bool _; PressButton(j, out _); return false; };
         }
         //init press event for food
         for(int i = 0; i < food.Length; i++)
         {
             int j = i;
-            food[i].GetComponent<KMSelectable>().OnInteract += delegate () { PressFood(j); return false; };
+            food[i].GetComponent<KMSelectable>().OnInteract += delegate () { bool _; PressFood(j, out _); return false; };
         }
         foreach(Renderer r in marker)
         {
@@ -273,8 +274,9 @@ public class simonServesScript : MonoBehaviour
     }
 
     //press on the people
-    void PressButton(int num)
+    void PressButton(int num, out bool correct)
     {
+        correct = true;
         if ((lastGuestPress != num && stage >= 0) || stage == 4)
         {
             buttons[num].AddInteractionPunch(.5f);
@@ -285,6 +287,7 @@ public class simonServesScript : MonoBehaviour
                 if (!(num == servingOrder[nextIndex]))
                 {
                     Debug.Log("[Simon Serves #" + moduleId + "] Wrong Person current, right on: " + num + ", " + servingOrder[nextIndex]);
+                    correct = false;
                     LogGameState();
                     HandleStrike();
                     return;
@@ -301,12 +304,12 @@ public class simonServesScript : MonoBehaviour
     }
 
     //press on the food in the table
-    void PressFood(int foodIndex)
+    void PressFood(int foodIndex, out bool correct)
     {
         food[foodIndex].GetComponent<KMSelectable>().AddInteractionPunch();
         Audio.PlaySoundAtTransform("Button Press " + (nextIndex * 2 + 2), transform);
         int num = foods[foodIndex];
-        if (checkFood(num))
+        if (checkFood(num, out correct))
         {
             foods[foodIndex] = -1;
             food[foodIndex].enabled = false;
@@ -317,8 +320,9 @@ public class simonServesScript : MonoBehaviour
 
     //check whether the right food was clicked
     //return whether it was the right food false does not nessecarily mean that it was a strike
-    bool checkFood(int numFood)
+    bool checkFood(int numFood, out bool correct)
     {
+        correct = false;
         //check for stage
         if (stage > 3 || stage < 0) return false; //we shouldn't be here...
 
@@ -333,6 +337,7 @@ public class simonServesScript : MonoBehaviour
             {
                 if (people[lastGuestPress, stage, i] == numFood)
                 {
+                    correct = true;
                     lastGuestPress = -1;
                     //correct dish
                     //no more dishes left
@@ -723,5 +728,106 @@ public class simonServesScript : MonoBehaviour
         if (lastGuestPress != -1 && stage >= 0 && stage < 4) prioListLog = String.Join(" ", new List<int>(new int[] { people[lastGuestPress, stage, 0], people[lastGuestPress, stage, 1], people[lastGuestPress, stage, 2], people[lastGuestPress, stage, 3], people[lastGuestPress, stage, 4], people[lastGuestPress, stage, 5], people[lastGuestPress, stage, 6], people[lastGuestPress, stage, 7] }).ConvertAll(i => i.ToString()).ToArray());
 
         Debug.Log("[Simon Serves #" + moduleId + "] " + blinkingOrderLog + "; " + servingOrderLog + "; " + stage + "; " + foodsLog + "; " + originalFoodsLog + "; " + nextIndex + "; " + prioListLog);
+    }
+    
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = "Use '!{0} knock' to knock on the table (start the module). To serve the dishes, use '!{0} serve <pairs separated by spaces (max 6)>'. Pairs consist of a guest and a dish. They can both be specified by their color (Guests: R,B,G,V,W,K (K being black); Dishes: W,N,R,B,G,Y,O,P (N being brown)) or by their position in reading order (1-6). So for example '3N' says the 3d guest will recieve the brown dish. To select who will pay the bill, use '!{0} bill <person>' to make select which person pays. They can either be selected by their names, colors, their initials or their positions. To make either use '!{0} bill S' or '!{0} bill table'.";
+    #pragma warning restore 414
+    
+    private readonly char[] GuestPositions = new[]
+    {
+        'r',
+        'b',
+        'g',
+        'k',
+        'w',
+        'v'
+    };
+    
+    private readonly char[] FoodColorPositions = new[]
+    {
+        'r',
+        'w',
+        'b',
+        'n',
+        'g',
+        'y',
+        'o',
+        'p'
+    };
+    
+    private int ConvertIndex(int reading_order)
+    {
+        return reading_order == 3 ? 5 : reading_order == 5 ? 3 : reading_order;
+    }
+    
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        command = command.Trim().ToLowerInvariant();
+        if(command == "knock")
+        {
+            yield return null;
+            if(stage != -1)
+                yield return "sendtochaterror You can't knock on the table now.";
+            else table.OnInteract();
+            yield break;
+        }
+        var match = Regex.Match(command, @"^serve ((([rbgvwk]|[1-6])([wnrbgyop]|[1-6])( |$)){1,6})$");
+        if(match.Success)
+        {
+            yield return null;
+            if(stage == -1 || stage >= 4)
+            {
+                yield return "sendtochaterror You can't serve dishes now.";
+                yield break;
+            }
+            foreach(var pair in match.Groups[1].Value.Split(' '))
+            {
+                var guest = pair[0];
+                var dish = pair[1];
+                int guest_index = ConvertIndex(char.IsDigit(guest) ? guest - '0' - 1 : Array.IndexOf(GuestPositions, guest));
+                int dish_index = char.IsDigit(dish) ? ConvertIndex(dish - '0' - 1) : Array.IndexOf(foods, Array.IndexOf(FoodColorPositions, dish));
+                if(dish_index == -1)
+                {
+                    yield return "sendtochaterror I'm afraid the dish you specified isn't on the table: " + dish;
+                    yield break;
+                }
+                yield return new WaitForSeconds(.1f);
+                bool correct;
+                PressButton(guest_index, out correct);
+                if(!correct)
+                    goto FAIL;
+                yield return new WaitForSeconds(.1f);
+                PressFood(dish_index, out correct);
+                if(!correct)
+                    goto FAIL;
+                continue;
+                FAIL:
+                yield return "sendtochaterror Struck on pair " + pair;
+                yield break;
+            }
+            yield break;
+        }
+        match = Regex.Match(command, @"^bill ([1-6]|[rbgkwvst]|red|blue|green|black|white|violet|riley|brandon|veronica|gabriel|wendy|kayle|simon|table)$");
+        if(match.Success)
+        {
+            yield return null;
+            if(stage != 4)
+            {
+                yield return "sendtochaterror You can't make someone pay before giving them their food.";
+                yield break;
+            }
+            var person = match.Groups[1].Value;
+            int person_index;
+            if(int.TryParse(person, out person_index))
+                person_index = ConvertIndex(person_index - 1);
+            else person_index = ConvertIndex(Array.IndexOf(GuestPositions, person[0]));
+            
+            bool _;
+            if(person_index != -1)
+                PressButton(person_index, out _);
+            yield return new WaitForSeconds(.1f);
+            PressTable();
+        }
     }
 }
